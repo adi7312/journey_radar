@@ -1,0 +1,19 @@
+services:
+    jr_db_api_gw:
+        container_name: jr_db_api_gw
+        image: postgres:17
+        healthcheck:
+            test: ["CMD-SHELL", "pg_isready -U postgres"]
+            interval: 5s
+            timeout: 5s
+            retries: 5
+        environment:
+            POSTGRES_PASSWORD: postgres
+            POSTGRES_USER: postgres
+            POSTGRES_DB: journey_radar_api_gw
+        ports:
+            - "5432:5432"
+        volumes:
+            - pgdata:/var/lib/postgresql/data
+volumes:  
+  pgdata: {}
