@@ -4,7 +4,7 @@ services:
             context: .
             dockerfile: Dockerfile
         ports:
-            - "8000:8000"
+            - "8002:8002"
         environment:
             DATABASE_URL: postgresql://postgres:postgres@db_api_gw:5432/journey_radar_api_gw
         depends_on:
