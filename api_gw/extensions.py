@@ -3,7 +3,7 @@ from fastapi import FastAPI
 from sqlmodel import Field, Session, SQLModel, create_engine, select
 import uvicorn
 
-DATABASE_URL = "postgresql://postgres:postgres@localhost:5432/journey_radar_api_gw"
+DATABASE_URL = "postgresql://postgres:postgres@db_api_gw:5432/journey_radar_api_gw"
 engine = create_engine(DATABASE_URL)
 
 app = FastAPI()

@@ -54,7 +54,7 @@ def get_all_reports(session: Session = Depends(get_session)):
     reports = session.exec(select(Report)).all()
     return reports
 
-@router.get("/reports/route/{route_name}", response_model=Report)
+@router.get("/reports/route/{route_name}", response_model=list[Report])
 def get_report(route_name: str, session: Session = Depends(get_session)):
     reports = session.exec(select(Report).where(Report.route_name == route_name)).all()
     return reports

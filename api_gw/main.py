@@ -8,9 +8,16 @@ from api_gw.dispatcher.dispatcher_controller import router as dispatcher_router
 from api_gw.reports.report_controller import router as report_router
 from api_gw.trip.trip_controller import router as trip_router
 
+
+
 # @app.on_event("startup")
 # def on_startup():
 #     create_db_and_tables()
+
+@app.on_event("startup")
+async def on_startup():
+    # Create tables on startup
+    SQLModel.metadata.create_all(engine)
 
 @app.get("/")
 def read_root():
@@ -22,6 +29,4 @@ app.include_router(report_router)
 app.include_router(trip_router)
 
 if __name__ == "__main__":
-    SQLModel.metadata.drop_all(engine)
-    SQLModel.metadata.create_all(engine)
     uvicorn.run(app, host="0.0.0.0")
