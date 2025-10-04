@@ -1,26 +1,27 @@
 from typing import Union
 from fastapi import FastAPI
-from sqlmodel import SQLModel, create_engine, Session
+from sqlmodel import Field, Session, SQLModel, create_engine, select
+from api_gw.db.models import *
+from api_gw.extensions import *
+from api_gw.user.user_controller import router as user_router
+from api_gw.dispatcher.dispatcher_controller import router as dispatcher_router
+from api_gw.reports.report_controller import router as report_router
+from api_gw.trip.trip_controller import router as trip_router
 
-DATABASE_URL = "postgresql://postgres:postgres@localhost:5432/journey_radar_api_gw"
-
-engine = create_engine(DATABASE_URL)
-
-app = FastAPI()
-
-# Create tables if they don't exist
-@app.on_event("startup")
-def on_startup():
-    SQLModel.metadata.create_all(engine)
-
-def get_session():
-    with Session(engine) as session:
-        yield session
+# @app.on_event("startup")
+# def on_startup():
+#     create_db_and_tables()
 
 @app.get("/")
 def read_root():
     return {"Hello": "World"}
 
-@app.get("/items/{item_id}")
-def read_item(item_id: int, q: Union[str, None] = None):
-    return {"item_id": item_id,
+app.include_router(user_router)
+app.include_router(dispatcher_router)
+app.include_router(report_router)
+app.include_router(trip_router)
+
+if __name__ == "__main__":
+    SQLModel.metadata.drop_all(engine)
+    SQLModel.metadata.create_all(engine)
+    uvicorn.run(app, host="0.0.0.0")

@@ -1,6 +1,5 @@
-from pydantic import BaseModel, EmailStr
 from sqlmodel import SQLModel, Field
-from typing import Optional
+from typing import Optional, Dict
 
 
 class User(SQLModel, table=True):
@@ -8,10 +7,18 @@ class User(SQLModel, table=True):
     name: str
     surname: str
     email: str
+    points: int
 
 
 class Report(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     likes: int
     dislikes: int
-    isValid: bool
+    verified: str # unverified, postiive, negative
+    description: str
+    lattidude: float
+    longidute: float
+    route_name: str
+    creator_id: int
+
+
