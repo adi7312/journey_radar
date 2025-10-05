@@ -22,33 +22,33 @@ def create_example_data():
                 dislikes=2,
                 verified="positive",
                 description="10 min delay",
-                lattidude=50.0697804,
-                longidute=19.925646,
+                lattidude=50.068268756543645,
+                longidute=19.947651357113628,
                 route_name="50",
                 creator_id=users[0].id,
-                timestamp=1759631684
+                timestamp=1728102000
             ),
             Report(
                 likes=3,
                 dislikes=2,
                 verified="unverified",
                 description="Car crash",
-                lattidude=50.06673,
-                longidute=19.92922,
+                lattidude=50.06078216283356, 
+                longidute=19.959806895097206,
                 route_name="50",
                 creator_id=users[1].id,
-                timestamp=1759630684
+                timestamp=1728098400
             ),
             Report(
                 likes=8,
                 dislikes=0,
                 verified="negative",
                 description="Tusk",
-                lattidude=50.06457,
-                longidute=19.94523,
+                lattidude=50.05809590796945, 
+                longidute=19.95907733426118,
                 route_name="50",
                 creator_id=users[2].id,
-                timestamp=1759620684
+                timestamp=1728015600
             ),
             Report(
                 likes=5,
@@ -59,7 +59,7 @@ def create_example_data():
                 longidute=19.95986,
                 route_name="50",
                 creator_id=users[0].id,
-                timestamp=1759531684
+                timestamp=1727929200
             ),
         ]
 

@@ -90,6 +90,7 @@ def get_trip_geo(request: StrTripRequest) -> TripResponse:
     e['headsign'] = google_rsp.json()['route']['steps'][steps_index]['transit']['headsign']
     e['departure_stop'] = google_rsp.json()['route']['steps'][steps_index]['transit']['departure_stop']
     e['departure_time'] = google_rsp.json()['route']['steps'][steps_index]['transit']['departure_time']
+    print(f"Departure time: {e['departure_time']}")
     dt = datetime.fromtimestamp(e['departure_time'], tz=timezone.utc)
     formatted = dt.strftime("%Y-%m-%dT%H:%M:%SZ")
     dep_lng = google_rsp.json()["route"]["steps"][steps_index]["start_location"]["lng"]
