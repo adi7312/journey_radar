@@ -35,8 +35,8 @@ def get_trip(request: TripRequest) -> TripResponse:
         delay = rsp.json()['delay_seconds']
     
     return TripResponse(
-        distance_m=google_rsp["route"]["distance_m"],
-        duration_s=google_rsp["route"]["duration_s"],
+        distance_m=google_rsp.json()["route"]["distance_m"],
+        duration_s=google_rsp.json()["route"]["duration_s"],
         delay_s=delay,
         travel_mode=f"{e['vehicle_type']}",
         start_location={"longitude": request.a_longitude, "latitude": request.a_latitude},

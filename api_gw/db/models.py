@@ -20,5 +20,6 @@ class Report(SQLModel, table=True):
     longidute: float
     route_name: str
     creator_id: int
+    timestamp: int
 
 

@@ -26,6 +26,7 @@ def create_example_data():
                 longidute=-74.0060,
                 route_name="Bus 24",
                 creator_id=users[0].id,
+                timestamp=1759631684
             ),
             Report(
                 likes=3,
@@ -36,6 +37,7 @@ def create_example_data():
                 longidute=-74.0090,
                 route_name="Metro Line A",
                 creator_id=users[1].id,
+                timestamp=1759630684
             ),
             Report(
                 likes=8,
@@ -46,6 +48,7 @@ def create_example_data():
                 longidute=-74.0020,
                 route_name="Train Route B",
                 creator_id=users[2].id,
+                timestamp=1759620684
             ),
             Report(
                 likes=5,
@@ -56,6 +59,7 @@ def create_example_data():
                 longidute=-74.0103,
                 route_name="Bus 12",
                 creator_id=users[0].id,
+                timestamp=1759531684
             ),
         ]
 
