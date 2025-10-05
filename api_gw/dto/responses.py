@@ -7,3 +7,4 @@ class TripResponse(BaseModel):
     delay_s: int
     travel_mode: str
     steps: list
+    predicted_delay_s: int
