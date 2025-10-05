@@ -35,6 +35,7 @@ app.add_middleware(
 @app.on_event("startup")
 async def on_startup():
     # Create tables on startup
+    SQLModel.metadata.drop_all(engine)
     SQLModel.metadata.create_all(engine)
     create_example_data()
 
