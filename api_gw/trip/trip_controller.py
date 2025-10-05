@@ -51,9 +51,9 @@ def get_trip_geo(request: TripRequest) -> TripResponse:
         delay = 0
     else:
         delay = rsp.json()['delay_seconds']
-    print(p_delay)
+    
     p_delay = call_predict(formatted,e["line_name"], e['vehicle_type'], dep_lat, dep_lng).json()["delay_sec"]
-
+    print(p_delay)
     return TripResponse(
         distance_m=google_rsp.json()["route"]["distance_m"],
         duration_s=google_rsp.json()["route"]["duration_s"],
@@ -88,9 +88,9 @@ def get_trip_geo(request: StrTripRequest) -> TripResponse:
         delay = 0
     else:
         delay = rsp.json()['delay_seconds']
-    print(p_delay)
+    
     p_delay = call_predict(formatted,e["line_name"], e['vehicle_type'], dep_lat, dep_lng).json()["delay_sec"]
-
+    print(p_delay)
     return TripResponse(
         distance_m=google_rsp.json()["route"]["distance_m"],
         duration_s=google_rsp.json()["route"]["duration_s"],
