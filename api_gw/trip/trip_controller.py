@@ -68,5 +68,6 @@ def get_trip_geo(request: StrTripRequest) -> TripResponse:
         distance_m=google_rsp.json()["route"]["distance_m"],
         duration_s=google_rsp.json()["route"]["duration_s"],
         delay_s=delay,
-        travel_mode=f"{e['vehicle_type']}"
+        travel_mode=f"{e['vehicle_type']}",
+        steps=google_rsp.json()['route']['steps']
     )

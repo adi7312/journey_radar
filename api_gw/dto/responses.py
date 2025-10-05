@@ -6,3 +6,4 @@ class TripResponse(BaseModel):
     duration_s: int
     delay_s: int
     travel_mode: str
+    steps: list
