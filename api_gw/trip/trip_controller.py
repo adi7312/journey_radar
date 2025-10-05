@@ -36,16 +36,21 @@ def get_trip_geo(request: TripRequest) -> TripResponse:
     google_rsp = requests.post(f"{GOOGLE_API_BASE}/transit", json=payload, timeout=30)
     google_rsp.raise_for_status()
 
+    steps_index = 0
+    for i in range(len(google_rsp.json()['route']['steps'])):
+        if google_rsp.json()['route']['steps'][i].get('transit', None) is not None:
+            steps_index = i
+            break
     e  = {}
-    e['line_name'] = google_rsp.json()['route']['steps'][1]['transit']['line_name']
-    e['vehicle_type'] = google_rsp.json()['route']['steps'][1]['transit']['vehicle_type']
-    e['headsign'] = google_rsp.json()['route']['steps'][1]['transit']['headsign']
-    e['departure_stop'] = google_rsp.json()['route']['steps'][1]['transit']['departure_stop']
-    e['departure_time'] = google_rsp.json()['route']['steps'][1]['transit']['departure_time']
+    e['line_name'] = google_rsp.json()['route']['steps'][steps_index]['transit']['line_name']
+    e['vehicle_type'] = google_rsp.json()['route']['steps'][steps_index]['transit']['vehicle_type']
+    e['headsign'] = google_rsp.json()['route']['steps'][steps_index]['transit']['headsign']
+    e['departure_stop'] = google_rsp.json()['route']['steps'][steps_index]['transit']['departure_stop']
+    e['departure_time'] = google_rsp.json()['route']['steps'][steps_index]['transit']['departure_time']
     dt = datetime.fromtimestamp(e['departure_time'], tz=timezone.utc)
     formatted = dt.strftime("%Y-%m-%dT%H:%M:%SZ")
-    dep_lng = google_rsp.json()["route"]["steps"][1]["start_location"]["lng"]
-    dep_lat = google_rsp.json()["route"]["steps"][1]["start_location"]["lat"]
+    dep_lng = google_rsp.json()["route"]["steps"][steps_index]["start_location"]["lng"]
+    dep_lat = google_rsp.json()["route"]["steps"][steps_index]["start_location"]["lat"]
     rsp = requests.post(f"{DELAY_API_BASE}/get-delay", json=e)
     if (rsp.status_code != 200):
         delay = 0
