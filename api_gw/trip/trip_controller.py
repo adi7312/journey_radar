@@ -77,6 +77,7 @@ def get_trip_geo(request: StrTripRequest) -> TripResponse:
         "destination": request.destination
     }
     google_rsp = requests.post(f"{GOOGLE_API_BASE}/transit", json=payload, timeout=30)
+    print(google_rsp.json())
     google_rsp.raise_for_status()
 
     steps_index = 0
