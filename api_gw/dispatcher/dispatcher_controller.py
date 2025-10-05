@@ -22,7 +22,7 @@ def verify_report(verificationReq: VerifyReportRequest, session: Session = Depen
         user.points -= 10
         report.verified = status
     else:
-        raise HTTPException(status_code=400, detial="Invalid verify field. Should be positive/negative")
+        raise HTTPException(status_code=400, detail="Invalid value")
     session.add(user) 
     session.add(report)
     session.commit()
