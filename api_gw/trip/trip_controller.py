@@ -21,10 +21,10 @@ def call_predict(timestamp, line_id, vehicle_type, lat, lon, endpoint=LLM_ENDPOI
         "lon": float(lon),
     }
     r = requests.post(endpoint, json=data, timeout=timeout)
-    try:
-        return r.json()
-    except Exception:
-        return r.text
+    print(r.content)
+    print(r.status_code)
+    return r.json()
+
 
 @router.post("/trip-geo", response_model=TripResponse)
 def get_trip_geo(request: TripRequest) -> TripResponse:
@@ -51,7 +51,7 @@ def get_trip_geo(request: TripRequest) -> TripResponse:
         delay = 0
     else:
         delay = rsp.json()['delay_seconds']
-    
+    print(p_delay)
     p_delay = call_predict(formatted,e["line_name"], e['vehicle_type'], dep_lat, dep_lng).json()["delay_sec"]
 
     return TripResponse(
@@ -88,7 +88,7 @@ def get_trip_geo(request: StrTripRequest) -> TripResponse:
         delay = 0
     else:
         delay = rsp.json()['delay_seconds']
-    
+    print(p_delay)
     p_delay = call_predict(formatted,e["line_name"], e['vehicle_type'], dep_lat, dep_lng).json()["delay_sec"]
 
     return TripResponse(
