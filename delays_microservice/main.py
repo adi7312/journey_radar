@@ -19,7 +19,8 @@ app = FastAPI()
 VEHICLE_TYPE_MAP = {
     "TRAM": VehicleType.T,
     "BUS": VehicleType.A,
-    "METRO": VehicleType.M
+    "METRO": VehicleType.M,
+    "HEAVY_RAIL": VehicleType.M
 }
 
 
@@ -89,9 +90,12 @@ def search_trip(req: SearchRequest, db: Session = Depends(get_db)):
     if not trip_update or not trip_update.get("stopTimeUpdate"):
         raise HTTPException(status_code=404, detail="Trip not found in trip updates")
 
-    last_stop_update = trip_update["stopTimeUpdate"][-1]
+    last_stop_update = trip_update["stopTimeUpdate"][0]
     stop_id = last_stop_update["stopId"]
-    actual_arrival = int(last_stop_update.get("departure", {}).get("time", None))
+    try:
+        actual_arrival = int(last_stop_update.get("departure", last_stop_update['arrival']).get("time", None))
+    except:
+        raise HTTPException(status_code=404, detail="Unknown error")
     if actual_arrival is None:
         raise HTTPException(status_code=404, detail="Actual arrival time no found in trip updates")
 
@@ -113,9 +117,52 @@ def search_trip(req: SearchRequest, db: Session = Depends(get_db)):
     plan_timestamp = int(datetime(today.year, today.month, today.day,
                                   plan_dt.hour, plan_dt.minute, plan_dt.second).timestamp())
 
-    print(actual_arrival)
-    print(plan_timestamp)
     delay_seconds = actual_arrival - plan_timestamp
+
+
+
+    # === bartek ===
+
+    stop_for_ml = (
+    db.query(Stop)
+    .filter(
+        Stop.id == stop_id
+    )
+    .first()
+    )
+
+    VEHICLE_TYPE_MAP_REVERSE = {
+    VehicleType.T: "TRAM",
+    VehicleType.A: "BUS",
+    VehicleType.M:  "HEAVY_RAIL"
+}
+
+    v_type = VEHICLE_TYPE_MAP_REVERSE.get(vehicle_type)
+
+    payload = [{
+        "timestamp": datetime.utcfromtimestamp(actual_arrival).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "line_id": req.line_name,
+        "vehicle_type": v_type,
+        "lat": float(stop_for_ml.latitude),
+        "lon": float(stop_for_ml.longitude),
+        "delay_sec": delay_seconds
+    }]
+
+    print(payload)
+
+
+    try:
+        resp = requests.post(
+            "http://217.153.167.103:8001/ingest",
+            json=payload,
+            headers={"Content-Type": "application/json"},
+            timeout=10
+        )
+        resp.raise_for_status()
+    except Exception as e:
+        print(f"Failed to send ingest request: {e}")
+
+
 
     return {
         "trip_id": trip.id,
