@@ -60,7 +60,8 @@ def get_trip_geo(request: TripRequest) -> TripResponse:
         delay_s=delay,
         travel_mode=f"{e['vehicle_type']}",
         steps=google_rsp.json()['route']['steps'],
-        predicted_delay_s=int(p_delay)
+        predicted_delay_s=int(p_delay), 
+        departure_time=e['departure_time']
     )
 
 @router.post("/trip", response_model=TripResponse)
@@ -97,5 +98,6 @@ def get_trip_geo(request: StrTripRequest) -> TripResponse:
         delay_s=delay,
         travel_mode=f"{e['vehicle_type']}",
         steps=google_rsp.json()['route']['steps'],
-        predicted_delay_s=int(p_delay)
+        predicted_delay_s=int(p_delay),
+        departure_time=e['departure_time']
     )
