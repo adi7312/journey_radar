@@ -6,5 +6,3 @@ class TripResponse(BaseModel):
     duration_s: int
     delay_s: int
     travel_mode: str
-    start_location: Dict[str, float]
-    end_location: Dict[str, float]

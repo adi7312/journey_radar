@@ -7,6 +7,11 @@ class TripRequest(BaseModel):
     b_longitude: float
     b_latitude: float
 
+class StrTripRequest(BaseModel):
+    origin: str
+    destination: str
+
+
 class ReportRequest(BaseModel):
     reporting_user_id: int
     description: str
