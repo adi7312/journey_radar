@@ -7,12 +7,12 @@ from api_gw.extensions import get_session
 router = APIRouter()
 
 @router.post("/dispatcher/reports/verify", response_model=Report)
-def verify_report(verificationReq: VerifyReportRequest, verified: str, session: Session = Depends(get_session)):
+def verify_report(verificationReq: VerifyReportRequest, session: Session = Depends(get_session)):
     report = session.get(Report, verificationReq.report_id)
     if not report:
         raise HTTPException(status_code=404, detail="Report not found")
     status = verificationReq.verified
-    user = session.get(User, report.reporting_user_id)
+    user = session.get(User, report.creator_id)
     
     
     if (status == "postitive"):
