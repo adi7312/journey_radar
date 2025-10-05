@@ -42,7 +42,7 @@ def get_trip_geo(request: TripRequest) -> TripResponse:
     e['headsign'] = google_rsp.json()['route']['steps'][1]['transit']['headsign']
     e['departure_stop'] = google_rsp.json()['route']['steps'][1]['transit']['departure_stop']
     e['departure_time'] = google_rsp.json()['route']['steps'][1]['transit']['departure_time']
-    dt = datetime.fromtimestamp(e['departure_time'], tz=timezone.cet)
+    dt = datetime.fromtimestamp(e['departure_time'], tz=timezone.utc)
     formatted = dt.strftime("%Y-%m-%dT%H:%M:%SZ")
     dep_lng = google_rsp.json()["route"]["steps"][1]["start_location"]["lng"]
     dep_lat = google_rsp.json()["route"]["steps"][1]["start_location"]["lat"]
@@ -60,7 +60,7 @@ def get_trip_geo(request: TripRequest) -> TripResponse:
         delay_s=delay,
         travel_mode=f"{e['vehicle_type']}",
         steps=google_rsp.json()['route']['steps'],
-        predicted_delay_s=p_delay
+        predicted_delay_s=int(p_delay)
     )
 
 @router.post("/trip", response_model=TripResponse)
@@ -97,5 +97,5 @@ def get_trip_geo(request: StrTripRequest) -> TripResponse:
         delay_s=delay,
         travel_mode=f"{e['vehicle_type']}",
         steps=google_rsp.json()['route']['steps'],
-        predicted_delay_s=p_delay
+        predicted_delay_s=int(p_delay)
     )
