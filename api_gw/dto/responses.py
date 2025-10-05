@@ -4,10 +4,8 @@ from pydantic import BaseModel
 class TripResponse(BaseModel):
     distance_m: int
     duration_s: int
+    delay_s: int
     travel_mode: str
-    arrival_stop: str
-    departure_stop: str
-    arrival_time: int
+    steps: list
+    predicted_delay_s: int
     departure_time: int
-    start_location: Dict[str, float]
-    end_location: Dict[str, float]

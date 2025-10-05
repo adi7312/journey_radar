@@ -1,7 +1,7 @@
 psycopg2-binary
 fastapi[standard]
 sqlmodel
+requests
 alembic
 pandas
 gtfs-realtime-bindings
-requests

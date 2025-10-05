@@ -3,6 +3,7 @@ from sqlmodel import Session, select
 from api_gw.db.models import Report, User
 from api_gw.extensions import get_session
 from api_gw.dto.requests import ReportRequest, VoteRequest
+import time
 router = APIRouter()
 
 @router.post("/reports/", response_model=Report)
@@ -18,7 +19,8 @@ def create_report(report: ReportRequest, session: Session = Depends(get_session)
         lattidude=report.lattidude,
         longidute=report.longidute,
         creator_id=report.reporting_user_id,
-        route_name=report.route_name
+        route_name=report.route_name,
+        timestamp=int(time.time())
     )
     
     session.add(new_report)

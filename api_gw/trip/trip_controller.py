@@ -1,24 +1,115 @@
 from fastapi import APIRouter
-from api_gw.dto.requests import TripRequest
+from api_gw.dto.requests import TripRequest, StrTripRequest
 from api_gw.dto.responses import TripResponse
-
+from datetime import datetime, timezone
 
 router = APIRouter()
 
-@router.post("/trip", response_model=TripResponse)
-def get_trip(request: TripRequest) -> TripResponse:
-    # Mock calculation for demonstration
-    distance = ((request.a_longitude - request.b_longitude) ** 2 + (request.a_latitude - request.b_latitude) ** 2) ** 0.5 * 111_000  # meters
-    duration = int(distance / 1.4)  # assuming walking speed ~1.4 m/s
+import requests
+import json
 
+GOOGLE_API_BASE = "http://217.153.167.103:8000"
+DELAY_API_BASE = "http://217.153.167.103:8010"
+LLM_ENDPOINT = "http://217.153.167.103:8001/predict"
+
+def call_predict(timestamp, line_id, vehicle_type, lat, lon, endpoint=LLM_ENDPOINT, timeout=15):
+    data = {
+        "timestamp": str(timestamp),
+        "line_id": str(line_id),
+        "vehicle_type": str(vehicle_type),
+        "lat": float(lat),
+        "lon": float(lon),
+    }
+    r = requests.post(endpoint, json=data, timeout=timeout)
+    print(r.content)
+    print(r.status_code)
+    return r.json()
+
+
+@router.post("/trip-geo", response_model=TripResponse)
+def get_trip_geo(request: TripRequest) -> TripResponse:
+    # Mock calculation for demonstration
+    payload = {
+        "origin": {"lat": request.a_latitude, "lng": request.a_longitude},
+        "destination": {"lat": request.b_latitude, "lng": request.b_longitude},
+    }
+    google_rsp = requests.post(f"{GOOGLE_API_BASE}/transit", json=payload, timeout=30)
+    google_rsp.raise_for_status()
+
+    steps_index = 0
+    for i in range(len(google_rsp.json()['route']['steps'])):
+        if google_rsp.json()['route']['steps'][i].get('transit', None) is not None:
+            steps_index = i
+            break
+    e  = {}
+    e['line_name'] = google_rsp.json()['route']['steps'][steps_index]['transit']['line_name']
+    e['vehicle_type'] = google_rsp.json()['route']['steps'][steps_index]['transit']['vehicle_type']
+    e['headsign'] = google_rsp.json()['route']['steps'][steps_index]['transit']['headsign']
+    e['departure_stop'] = google_rsp.json()['route']['steps'][steps_index]['transit']['departure_stop']
+    e['departure_time'] = google_rsp.json()['route']['steps'][steps_index]['transit']['departure_time']
+    dt = datetime.fromtimestamp(e['departure_time'], tz=timezone.utc)
+    formatted = dt.strftime("%Y-%m-%dT%H:%M:%SZ")
+    dep_lng = google_rsp.json()["route"]["steps"][steps_index]["start_location"]["lng"]
+    dep_lat = google_rsp.json()["route"]["steps"][steps_index]["start_location"]["lat"]
+    rsp = requests.post(f"{DELAY_API_BASE}/get-delay", json=e)
+    if (rsp.status_code != 200):
+        delay = 0
+    else:
+        delay = rsp.json()['delay_seconds']
+    
+    p_delay = call_predict(formatted,e["line_name"], e['vehicle_type'], dep_lat, dep_lng)["delay_sec"]
+    print(p_delay)
     return TripResponse(
-        distance_m=int(distance),
-        duration_s=duration,
-        travel_mode="walking",
-        arrival_stop="Destination",
-        departure_stop="Origin",
-        arrival_time=1633035600 + duration,  # mock timestamp
-        departure_time=1633035600,           # mock timestamp
-        start_location={"longitude": request.a_longitude, "latitude": request.a_latitude},
-        end_location={"longitude": request.b_longitude, "latitude": request.b_latitude}
+        distance_m=google_rsp.json()["route"]["distance_m"],
+        duration_s=google_rsp.json()["route"]["duration_s"],
+        delay_s=delay,
+        travel_mode=f"{e['vehicle_type']}",
+        steps=google_rsp.json()['route']['steps'],
+        predicted_delay_s=int(p_delay), 
+        departure_time=e['departure_time']
+    )
+
+@router.post("/trip", response_model=TripResponse)
+def get_trip_geo(request: StrTripRequest) -> TripResponse:
+    # Mock calculation for demonstration
+    payload = {
+        "origin": request.origin,
+        "destination": request.destination
+    }
+    google_rsp = requests.post(f"{GOOGLE_API_BASE}/transit", json=payload, timeout=30)
+    print(google_rsp.json())
+    google_rsp.raise_for_status()
+
+    steps_index = 0
+    for i in range(len(google_rsp.json()['route']['steps'])):
+        if google_rsp.json()['route']['steps'][i].get('transit', None) is not None:
+            steps_index = i
+            break
+    e  = {}
+    e['line_name'] = google_rsp.json()['route']['steps'][steps_index]['transit']['line_name']
+    e['vehicle_type'] = google_rsp.json()['route']['steps'][steps_index]['transit']['vehicle_type']
+    e['headsign'] = google_rsp.json()['route']['steps'][steps_index]['transit']['headsign']
+    e['departure_stop'] = google_rsp.json()['route']['steps'][steps_index]['transit']['departure_stop']
+    e['departure_time'] = google_rsp.json()['route']['steps'][steps_index]['transit']['departure_time']
+    print(f"Departure time: {e['departure_time']}")
+    dt = datetime.fromtimestamp(e['departure_time'], tz=timezone.utc)
+    formatted = dt.strftime("%Y-%m-%dT%H:%M:%SZ")
+    dep_lng = google_rsp.json()["route"]["steps"][steps_index]["start_location"]["lng"]
+    dep_lat = google_rsp.json()["route"]["steps"][steps_index]["start_location"]["lat"]
+    rsp = requests.post(f"{DELAY_API_BASE}/get-delay", json=e)
+    if (rsp.status_code != 200):
+        delay = 0
+    else:
+        delay = rsp.json()['delay_seconds']
+    
+    p_delay = call_predict(formatted,e["line_name"], e['vehicle_type'], dep_lat, dep_lng)["delay_sec"]
+    print(p_delay)
+    return TripResponse(
+        distance_m=google_rsp.json()["route"]["distance_m"],
+        duration_s=google_rsp.json()["route"]["duration_s"],
+        delay_s=delay,
+        travel_mode=f"{e['vehicle_type']}",
+        steps=google_rsp.json()['route']['steps'],
+        predicted_delay_s=int(p_delay),
+        departure_time=e['departure_time']
     )
