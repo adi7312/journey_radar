@@ -1,3 +1,7 @@
 psycopg2
 fastapi[standard]
 sqlmodel
+alembic
+pandas
+gtfs-realtime-bindings
+requests

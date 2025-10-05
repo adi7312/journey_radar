@@ -1,0 +1,15 @@
+services:
+
+  db:
+    image: postgres:17
+    environment:
+      POSTGRES_DB: delays
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: root
+    ports:
+      - "5436:5432"
+    volumes:
+      - delays_db_data:/var/lib/postgresql/data
+
+volumes:
+  delays_db_data:
