@@ -11,8 +11,8 @@ import json
 GOOGLE_API_BASE = "http://217.153.167.103:8000"
 DELAY_API_BASE = "http://217.153.167.103:8010"
 
-@router.post("/trip", response_model=TripResponse)
-def get_trip(request: TripRequest) -> TripResponse:
+@router.post("/trip-geo", response_model=TripResponse)
+def get_trip_geo(request: TripRequest) -> TripResponse:
     # Mock calculation for demonstration
     payload = {
         "origin": {"lat": request.a_latitude, "lng": request.a_longitude},
@@ -42,7 +42,7 @@ def get_trip(request: TripRequest) -> TripResponse:
     )
 
 @router.post("/trip", response_model=TripResponse)
-def get_trip(request: StrTripRequest) -> TripResponse:
+def get_trip_geo(request: StrTripRequest) -> TripResponse:
     # Mock calculation for demonstration
     payload = {
         "origin": request.origin,
